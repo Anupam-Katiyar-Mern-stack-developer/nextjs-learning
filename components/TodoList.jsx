@@ -6,7 +6,9 @@ export default function TodoList() {
     const [task, setTask] = useState("");
     const [todos, setTodos] = useState([]);
 
-
+    const handleDelete=(id)=>{
+        setTodos((prev)=>prev.filter((item)=>item.id !== id))
+    }
 
     return (
         <div>
@@ -20,6 +22,7 @@ export default function TodoList() {
                 {todos?.map((todo) => (
                     <div key={todo.id}>
                         <p>{todo.title}</p>
+                        <button onClick={()=>handleDelete(todo.id)}>delete</button>
                     </div>
                 ))}
             </div>
