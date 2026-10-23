@@ -33,6 +33,23 @@ export default function StudentList() {
         setStudents((prev) => [...prev, newStudent]);
     };
 
+    const handleDelete = async (id) => {
+        try {
+            const response = await fetch(`/api/students/${id}`, {
+                method: "DELETE"
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete student");
+            }
+
+            setStudents((prev) => prev.filter((student) => student.id !== id))
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     if (loading) return <p>Loading students...</p>;
     if (error) return <p>{error}</p>;
 
@@ -43,6 +60,7 @@ export default function StudentList() {
                 <div key={student.id} className="border p-3">
                     <h2>{student.name}</h2>
                     <p>{student.course}</p>
+                    <button className="bg-red-400 p-1 rounded text-shadow-white" onClick={() => handleDelete(student.id)}>Delete</button>
                 </div>
             ))}
         </div>
