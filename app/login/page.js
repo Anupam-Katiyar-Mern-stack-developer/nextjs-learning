@@ -1,3 +1,5 @@
+"use client";
+
 import { useActionState } from "react";
 import { loginUser } from "./actions";
 
@@ -14,8 +16,8 @@ export default function loginPage() {
   return (
     <div>
       <form action={formAction} className="space-y-3 border p-3 flex flex-col">
-        <input name="email" placeholder="email" />
-        <input name="password" placeholder="password" />
+        <input name="email" placeholder="email"className="border rounded p-1 border-gray-200" />
+        <input name="password" placeholder="password"className="border rounded p-1 border-gray-200" />
         <button type="submit" className="border p-1 bg-green-300">
           Submit
         </button>
