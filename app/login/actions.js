@@ -2,8 +2,10 @@
 
 import pool from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { redirect } from "next/dist/server/api-utils";
 import { cookies } from "next/headers";
 import { randomBytes, createHash } from "node:crypto";
+
 
 export async function loginUser(prevState, formData) {
   const email = formData.get("email");
@@ -24,7 +26,7 @@ export async function loginUser(prevState, formData) {
   try {
     const result = await pool.query(
       "SELECT id, password FROM users WHERE email = $1",
-      [email.trim().toLowerCase()]
+      [email.trim().toLowerCase()],
     );
 
     const user = result.rows[0];
@@ -47,9 +49,7 @@ export async function loginUser(prevState, formData) {
 
     const token = randomBytes(32).toString("hex");
 
-    const tokenHash = createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const tokenHash = createHash("sha256").update(token).digest("hex");
 
     const maxAge = 60 * 60 * 24 * 7;
     const expiresAt = new Date(Date.now() + maxAge * 1000);
@@ -57,7 +57,7 @@ export async function loginUser(prevState, formData) {
     await pool.query(
       `INSERT INTO sessions (user_id, token_hash, expires_at)
        VALUES ($1, $2, $3)`,
-      [user.id, tokenHash, expiresAt]
+      [user.id, tokenHash, expiresAt],
     );
 
     const cookieStore = await cookies();
@@ -69,6 +69,7 @@ export async function loginUser(prevState, formData) {
       path: "/",
       maxAge,
     });
+    
 
     return {
       success: true,
