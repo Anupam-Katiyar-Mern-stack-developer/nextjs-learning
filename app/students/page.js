@@ -6,52 +6,23 @@ export default async function StudentsPage() {
     "SELECT id, name, course FROM students ORDER BY id DESC"
   );
 
-  const students = result.rows;
-
   return (
     <main className="p-6">
-      <h1 className="text-2xl font-bold mb-5">
-        Student Management
-      </h1>
+      <h1 className="text-xl font-bold mb-4">Students</h1>
 
-      <form action={addStudent} className="flex gap-3 mb-6">
-        <input
-          type="text"
-          name="name"
-          placeholder="Student name"
-          className="border p-2"
-          required
-        />
-
-        <input
-          type="text"
-          name="course"
-          placeholder="Course"
-          className="border p-2"
-          required
-        />
-
+      <form action={addStudent} className="flex gap-2 mb-6">
+        <input name="name" placeholder="Name" className="border p-2" />
+        <input name="course" placeholder="Course" className="border p-2" />
         <button type="submit" className="border px-4 py-2">
-          Add Student
+          Save
         </button>
       </form>
 
-      <h2 className="text-xl font-semibold mb-3">
-        All Students
-      </h2>
-
-      {students.length === 0 ? (
-        <p>No students found</p>
-      ) : (
-        <div className="space-y-2">
-          {students.map((student) => (
-            <div key={student.id} className="border p-3">
-              <p>{student.name}</p>
-              <p>{student.course}</p>
-            </div>
-          ))}
+      {result.rows.map((student) => (
+        <div key={student.id} className="border p-3 mb-2">
+          {student.name} — {student.course}
         </div>
-      )}
+      ))}
     </main>
   );
 }

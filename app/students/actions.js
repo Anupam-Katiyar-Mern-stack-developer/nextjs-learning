@@ -1,7 +1,6 @@
 "use server";
 
 import pool from "@/lib/db";
-
 import { revalidatePath } from "next/cache";
 
 export async function addStudent(formData) {
@@ -14,22 +13,19 @@ export async function addStudent(formData) {
     typeof course !== "string" ||
     !course.trim()
   ) {
-    return {
-      success: false,
-      message: "name and course are required ",
-    };
+    return { success: false, message: "All fields required" };
   }
 
-  await pool.query(
-    `insert into students (name,course)
-    values($1,$2)`,
-    [name.trim(), course.trim()],
-  );
+  try {
+    await pool.query("insert into students (name,course) values ($1,$2)", [
+      name.trim(),
+      course.trim(),
+    ]);
 
-  revalidatePath("/students");
+    revalidatePath("/students");
 
-  return {
-    success: true,
-    message: "students added succesfully",
-  };
+    return { success: true, message: "student added " };
+  } catch (error) {
+    return { success: false, message: "Something went wrong" };
+  }
 }
