@@ -1,9 +1,9 @@
 "use server";
 import pool from "@/lib/db";
-
 import bcrypt from "bcryptjs";
+import { revalidatePath } from "next/cache";
 
-export async function registerUser(formdata) {
+export async function registerUser(prevState, formdata) {
   const name = formdata.get("name");
   const email = formdata.get("email");
   const password = formdata.get("password");
@@ -31,6 +31,7 @@ export async function registerUser(formdata) {
          values ($1,$2,$3)`,
       [name.trim(), normalizedEmail, hashedPassword],
     );
+    revalidatePath("/register");
 
     return {
       success: true,
