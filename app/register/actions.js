@@ -31,7 +31,7 @@ export async function registerUser(prevState, formdata) {
          values ($1,$2,$3)`,
       [name.trim(), normalizedEmail, hashedPassword],
     );
-    revalidatePath("/register");
+    // revalidatePath("/register");
 
     return {
       success: true,

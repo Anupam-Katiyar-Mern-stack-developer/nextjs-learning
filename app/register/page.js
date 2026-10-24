@@ -1,35 +1,59 @@
 "use client";
 
-import { registerUser } from "./actions";
 import { useActionState } from "react";
+import { registerUser } from "./actions";
 
 const initialState = {
   success: false,
   message: "",
 };
 
-export default async function page() {
+export default function RegisterForm() {
   const [state, formAction, isPending] = useActionState(
     registerUser,
-    initialState,
+    initialState
   );
 
   return (
-    <div className="flex gap-3 p-4">
-      <form action={registerUser} className="space-y-2">
-        <input name="name" placeholder="name" className="p-1 border" />
-        <input name="email" placeholder="email" className="p-1 border" />
-        <input name="password" placeholder="name" className="p-1 border" />
-        <button type="submit " disabled={isPending} className="p-2 bg-red-400 ">
-          {isPending ? "Registering..." : "register"}
-        </button>
+    <form action={formAction} className="space-y-3">
+      <input
+        type="text"
+        name="name"
+        placeholder="Enter name"
+        className="border p-2"
+        required
+      />
 
-        {state.message && (
-          <p className={state.success ? "text-green-600" : "text-red-600"}>
-            {state.message}
-          </p>
-        )}
-      </form>
-    </div>
+      <input
+        type="email"
+        name="email"
+        placeholder="Enter email"
+        className="border p-2"
+        required
+      />
+
+      <input
+        type="password"
+        name="password"
+        placeholder="Enter password"
+        className="border p-2"
+        minLength={8}
+        required
+      />
+
+      <button
+        type="submit"
+        disabled={isPending}
+        className="bg-blue-600 text-white px-4 py-2 rounded"
+      >
+        {isPending ? "Registering..." : "Register"}
+      </button>
+
+      {state.message && (
+        <p className={state.success ? "text-green-600" : "text-red-600"}>
+          {state.message}
+        </p>
+      )}
+    </form>
   );
 }
