@@ -2,10 +2,12 @@
 
 import pool from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { cookies } from "next/headers";
+import { randomBytes, createHash } from "node:crypto";
 
-export async function loginUser(prevstate, formdata) {
-  const email = formdata.get("email");
-  const password = formdata.get("password");
+export async function loginUser(prevState, formData) {
+  const email = formData.get("email");
+  const password = formData.get("password");
 
   if (
     typeof email !== "string" ||
@@ -15,21 +17,22 @@ export async function loginUser(prevstate, formdata) {
   ) {
     return {
       success: false,
-      message: "Email and password are required",
+      message: "Email and password required",
     };
   }
 
   try {
     const result = await pool.query(
-      "select id, name,password from users where email = $1",
-      [email.trim().toLowerCase()],
+      "SELECT id, password FROM users WHERE email = $1",
+      [email.trim().toLowerCase()]
     );
+
     const user = result.rows[0];
 
     if (!user) {
       return {
         success: false,
-        message: "Invalid email or password",
+        message: "Invalid credentials",
       };
     }
 
@@ -38,19 +41,45 @@ export async function loginUser(prevstate, formdata) {
     if (!isMatch) {
       return {
         success: false,
-        message: "Invalid email or password",
+        message: "Invalid credentials",
       };
     }
+
+    const token = randomBytes(32).toString("hex");
+
+    const tokenHash = createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const maxAge = 60 * 60 * 24 * 7;
+    const expiresAt = new Date(Date.now() + maxAge * 1000);
+
+    await pool.query(
+      `INSERT INTO sessions (user_id, token_hash, expires_at)
+       VALUES ($1, $2, $3)`,
+      [user.id, tokenHash, expiresAt]
+    );
+
+    const cookieStore = await cookies();
+
+    cookieStore.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge,
+    });
+
     return {
       success: true,
-      message: "credentials verified successfully",
+      message: "Login successful",
     };
   } catch (error) {
-    console.log("login error", error);
+    console.error("Login error:", error);
 
     return {
       success: false,
-      message: "Something went wrong",
+      message: "Login failed",
     };
   }
 }
